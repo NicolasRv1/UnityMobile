@@ -1,9 +1,14 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
     [Header("Player Animation")]
     public Animator animatorPlayer;
+
+
+    private Vector2 input;
+    private bool moving;
 
     public float walkSpeed = 3.0f;
     private Rigidbody2D rb;
@@ -14,32 +19,37 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
     }
 
-    void FixedUpdate()
-    {
-        float movX = Input.GetAxis("Horizontal");
-        float movY = Input.GetAxis("Vertical");
-        
-        rb.linearVelocity = new Vector2(movX * walkSpeed, movY * walkSpeed);
 
-        UpdateAnimation(movX, movY);
+    void UpdateAnimation()
+    {
+        if (input.magnitude > 0.1f || input.magnitude < -0.1f)
+        {
+            moving = true;
+        }
+        else
+        {
+            moving = false;
+        }
+        if (moving)
+        {
+            animatorPlayer.SetFloat("x", input.x);
+            animatorPlayer.SetFloat("y", input.y);
+        }
+
+        animatorPlayer.SetBool("moving", moving);
     }
 
-    void UpdateAnimation(float movX, float movY)
-    {
-        bool walkRight = movX > 0;
-        bool walkLeft = movX < 0;
-        bool walkUp = movY > 0;
-        bool walkDown = movY < 0;
-
-        animatorPlayer.SetBool("WalkRight", walkRight);
-        animatorPlayer.SetBool("WalkLeft", walkLeft);
-        animatorPlayer.SetBool("WalkUp", walkUp);
-        animatorPlayer.SetBool("WalkDown", walkDown);
-    }
-
-    // Update is called once per frame
     void Update()
     {
-        
+        Vector2 move = new Vector2(input.x, input.y);
+        transform.Translate(move * walkSpeed * Time.deltaTime, Space.World);
+
+        UpdateAnimation();
     }
+
+    public void GetInput(InputAction.CallbackContext context)
+    {
+        input = context.ReadValue<Vector2>();
+    }
+
 }
