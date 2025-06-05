@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -30,10 +31,15 @@ public class PlayerController : MonoBehaviour
         {
             moving = false;
         }
-        if (moving)
+        if (moving && Resources1.isInvert == false)
         {
             animatorPlayer.SetFloat("x", input.x);
             animatorPlayer.SetFloat("y", input.y);
+        }
+        else if (moving && Resources1.isInvert == true)
+        {
+            animatorPlayer.SetFloat("x", -input.x);
+            animatorPlayer.SetFloat("y", -input.y);
         }
 
         animatorPlayer.SetBool("moving", moving);
@@ -41,8 +47,21 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        Vector2 move = new Vector2(input.x, input.y);
+        Vector2 move = new Vector2(0,0);
+
+
+        if (Resources1.isInvert == false)
+        {
+            Debug.Log("Falso");
+            move = new Vector2(input.x, input.y);
+        }
+        else if (Resources1.isInvert == true)
+        {
+            Debug.Log("True");
+            move = new Vector2(-input.x, -input.y);
+        }
         transform.Translate(move * walkSpeed * Time.deltaTime, Space.World);
+
 
         UpdateAnimation();
     }
